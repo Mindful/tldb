@@ -1,13 +1,15 @@
 import sqlite3
 
 class TranslationDatabase:
+	#TODO: INDICES
+	#sentence table should have joint primary key (or at least unique/indexed by)
+	#article ID, sentence #, language
+
 	database_name = 'translations.db'
 	article_table_name = 'articles'
 	article_table_schema = 'id INTEGER PRIMARY KEY, base_text TEXT'
 	sentence_table_name = 'sentences'
-	#sentence table should have joint primary key (or at least unique/indexed by)
-	#article ID, sentence #, language
-	sentence_table_schema = ' id INTEGER PRIMARY KEY, sentence_number INTEGER, base_text TEXT, language TEXT, article_id INTEGER, FOREIGN KEY(article_id) REFERENCES articles(id)'
+	sentence_table_schema = 'id INTEGER PRIMARY KEY, sentence_number INTEGER, base_text TEXT, language TEXT, article_id INTEGER, FOREIGN KEY(article_id) REFERENCES articles(id)'
 
 	def __init__(self):
 		self.db = sqlite3.connect(self.database_name)
