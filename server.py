@@ -8,6 +8,9 @@ class ArticleRouting:
 		resp.status = falcon.HTTP_200
 		resp.media = {"text": "Articles" + str(id)}
 
+	def on_post(self, req, resp):
+		
+
 class SentenceRouting:
 	def on_get(self, req, resp, id):
 		resp.status = falcon.HTTP_200
