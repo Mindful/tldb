@@ -12,9 +12,9 @@ class Article:
 		self.__parsed_text = None
 
 
-	def get_parsed_text():
+	def get_parsed_text(self):
 		if not self.__parsed_text:
-			self.__parsed_text = Article.nlp(self.base_text)
+			self.__parsed_text = self.nlp(self.base_text)
 
 		return self.__parsed_text
 

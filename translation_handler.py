@@ -14,8 +14,8 @@ class TranslationHandler:
 
 
 	def register_article(self, article_text):
-		article = self.db.insert_article(article)
-		for language in languages:
+		article = self.db.create_article(article_text)
+		for language in self.languages:
 			self.__save_article_translations(article, language)
 
 
