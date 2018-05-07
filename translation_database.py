@@ -1,5 +1,7 @@
 import sqlite3
 import article
+import article
+import sentence
 
 class TranslationDatabase:
 	#TODO: INDICES
@@ -32,7 +34,14 @@ class TranslationDatabase:
 		c = self.db.cursor()
 		c.execute("INSERT INTO " + self.article_table_name + " (base_text) VALUES (?)", (article_text,))
 		self.db.commit()
-		return Article(c.lastrowid, article_text)
+		return article.Article(c.lastrowid, article_text)
+
+	def create_sentences(self, sentence_tuple_list):
+		c = self.db.cursor()
+		c.executemany("INSERT INTO " + self.sentence_table_name + " VALUES (?,?,?,?)", sentence_tuple_list)
+		self.db.commit()
+		return [sentence.Sentence(x[0], x[1], x[2], x[3]) for x in sentence_tuple_list]
+
 
 
 

@@ -1,7 +1,8 @@
 class Sentence:
-	def __init__(self, article_id, sentence_number, base_text):
+	def __init__(self, sentence_number, translated_text, language, article_id):
 		self.article_id = article_id
 		self.sentence_number = sentence_number
-		self.text = text
+		self.translated_text = translated_text
+		self.language = language
 
 		
