@@ -4,7 +4,7 @@ import spacy
 import sentence
 
 
-def TranslationHandler:
+class TranslationHandler:
 
 	languages = ['ja']
 
