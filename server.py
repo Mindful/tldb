@@ -1,7 +1,6 @@
 import falcon
 import translation_handler
 import sqlite3
-from datetime import datetime
 import logging
 
 # gunicorn server:app
@@ -22,7 +21,8 @@ class GetContentRouting:
 class GetSentenceRouting:
     def on_get(self, req, resp, source, content_id, language, sentence_number):
         content_id = int(content_id)
-        sentence_number = int(sentence_number)
+        sentence_number = int(sentence_number) - 1 #Sentences are 0 indexed
+        source = source.lower()
         try:
             sentence = handler.get_sentence(content_id, source, sentence_number, language)
             resp.status = falcon.HTTP_200
@@ -44,7 +44,9 @@ class NewContentRouting:
                 raise falcon.HTTPBadRequest(description="Missing required attribute: " + required_attribute)
 
         try:
-            handler.register_content(content[TEXT], content[EXTERNAL_ID], content[SOURCE])
+            external_id = int(content[EXTERNAL_ID])
+            external_source = content[SOURCE].lower()
+            handler.register_content(content[TEXT], external_id, external_source)
             resp.status = falcon.HTTP_201
         except sqlite3.IntegrityError as sqlite_ex:
             logger.exception(sqlite_ex)
@@ -56,8 +58,12 @@ class NewContentRouting:
 
 app = falcon.API()
 # TODO: configure logger instance, add timestamps
+logging.basicConfig(
+    format='[%(asctime)s] [%(levelname)s] %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger()
-handler = translation_handler.TranslationHandler(logger)
+handler = translation_handler.TranslationHandler()
 
 app.add_route('/content', NewContentRouting())
 app.add_route('/content/{source}/{content_id}/{language}', GetContentRouting())
