@@ -40,12 +40,15 @@ class TranslationHandler:
             raise ContentNotFoundException()
 
         sentence = self.db.get_sentence(content_external_id, language, sentence_number)
-        if not sentence:
+        if sentence:
+            return sentence
+        else:
             self.logger.info("No pretranslated sentence found for content ID ", content_external_id, " language ", language, " sentence number ",
                 sentence_number, ". Translating and returning.")
             sentence_text = list(content.get_parsed_text())[sentence_number].text
-            sentence_translation = self.web_client.translate(sentence.text, language)
+            sentence_translation = self.web_client.translate(sentence_text, language)
             return self.db.create_sentence(sentence_number, sentence_translation, language, content.db_id)
+
 
 
 

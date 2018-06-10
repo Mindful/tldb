@@ -46,7 +46,7 @@ class TranslationDatabase:
         return [sentence.Sentence(*x) for x in sentence_tuple_list]
 
     def create_sentence(self, sentence_number, translated_text, language, content_id):
-        return self.create_sentence(list((sentence_number, translated_text, language, content_id)))[0]
+        return self.create_sentences(list((sentence_number, translated_text, language, content_id)))[0]
 
     def get_content(self, source, external_id):
         c = self.__get_cursor()
@@ -56,7 +56,6 @@ class TranslationDatabase:
             return content.Content(*content_data)
         else:
             return None
-
 
     def get_sentence(self, content_id, language, sentence_number):
         c = self.__get_cursor()

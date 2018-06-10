@@ -13,20 +13,23 @@ EXTERNAL_ID = 'external_id'
 
 
 class GetContentRouting:
-    def on_get(self, req, resp, source, id, language):
+    def on_get(self, req, resp, source, content_id, language):
+        content_id = int(content_id)
         resp.status = falcon.HTTP_200
         resp.media = {"text": "contents" + str(id)}
 
 
 class GetSentenceRouting:
-    def on_get(self, req, resp, source, id, language, sentence_number):
+    def on_get(self, req, resp, source, content_id, language, sentence_number):
+        content_id = int(content_id)
+        sentence_number = int(sentence_number)
         try:
-            sentence = handler.get_sentence(source, id, sentence_number, language)
+            sentence = handler.get_sentence(content_id, source, sentence_number, language)
             resp.status = falcon.HTTP_200
-            resp.media = {vars(sentence)}
+            resp.media = vars(sentence)
 
         except translation_handler.ContentNotFoundException as ex:
-            logger.warning(ex)
+            logger.warning("Could not find content with source %s and ID %d", source, content_id)
             raise falcon.HTTPNotFound(description="Could not find content with the specified source and ID")
         except Exception as ex:
             logger.exception(ex)
@@ -57,5 +60,5 @@ logger = logging.getLogger()
 handler = translation_handler.TranslationHandler(logger)
 
 app.add_route('/content', NewContentRouting())
-app.add_route('/content/{source}/{id}/{language}', GetContentRouting())
-app.add_route('/content/{source}/{id}/{language}/{sentence_number}', GetSentenceRouting())
+app.add_route('/content/{source}/{content_id}/{language}', GetContentRouting())
+app.add_route('/content/{source}/{content_id}/{language}/{sentence_number}', GetSentenceRouting())
