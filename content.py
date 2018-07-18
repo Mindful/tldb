@@ -12,6 +12,7 @@ class Content:
         self.external_id = external_id
         self.data_source = data_source
         self.__parsed_text = None
+        self.__sent_end_map = None
 
 
     def get_parsed_text(self):
@@ -19,3 +20,15 @@ class Content:
             self.__parsed_text = self.nlp(self.base_text)
 
         return self.__parsed_text
+
+    def get_sentence_endings_map(self):
+        if not self.__sent_end_map:
+            sent_end_map = {}
+            parsed_text = self.get_parsed_text()
+            for index,sentence in enumerate(parsed_text.sents):
+                sent_end_map[index] = len(str(parsed_text[0:sentence.end]))
+
+            self.__sent_end_map = sent_end_map
+
+        return self.__sent_end_map
+

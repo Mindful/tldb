@@ -22,6 +22,14 @@ class TranslationHandler:
             self.__save_content_translations(content, language)
 
 
+    def get_content(self, content_external_id, content_source):
+        content = self.db.get_content(content_source, content_external_id)
+        if not content:
+            raise ContentNotFoundException()
+        else:
+            return content
+
+
     def __save_content_translations(self, content, language):
         output_sentence_tuples = []
         for counter, sentence in enumerate(content.get_parsed_text().sents):
