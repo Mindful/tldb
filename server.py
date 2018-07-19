@@ -37,7 +37,7 @@ class GetContentRouting:
 class GetSentenceRouting:
     def on_get(self, req, resp, source, content_id, language, sentence_number):
         content_id = int(content_id)
-        sentence_number = int(sentence_number) - 1 #Sentences are 0 indexed
+        sentence_number = int(sentence_number)
         source = source.lower()
         try:
             sentence = handler.get_sentence(content_id, source, sentence_number, language)
@@ -47,6 +47,9 @@ class GetSentenceRouting:
         except translation_handler.ContentNotFoundException as ex:
             logger.warning("Could not find content with source %s and ID %d", source, content_id)
             raise falcon.HTTPNotFound(description="Could not find content with the specified source and ID")
+        except translation_handler.SentenceNotFoundException as ex:
+            logger.warning("Could not find sentence with content source %s, content id %d, and sentence number %d", source, content_id, sentence_number)
+            raise falcon.HTTPNotFound(description="Could not find sentence number "+str(sentence_number)+" for specified content")
         except Exception as ex:
             logger.exception(ex)
             raise falcon.HTTPInternalServerError()

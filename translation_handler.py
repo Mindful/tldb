@@ -6,10 +6,14 @@ import logging
 class ContentNotFoundException(Exception):
     pass
 
+class SentenceNotFoundException(Exception):
+    pass
+
 
 class TranslationHandler:
 
-    languages = ['ja']
+    #We will automatically generate translations for any languages in this array upon article submission. Intentionally empty 
+    default_translation_languages = []
 
     def __init__(self):
         self.db = translation_database.TranslationDatabase()
@@ -17,9 +21,19 @@ class TranslationHandler:
         self.logger = logging.getLogger()
 
     def register_content(self, text, external_id, source):
-        content = self.db.create_content(text, external_id, source)
-        for language in self.languages:
+        preexisting_content = self.db.get_content(source, external_id)
+        if preexisting_content:
+            self.logger.info("Replacing pre-existing content with external ID %s and source %s", external_id, source)
+            self.db.delete_sentences_for_content(preexisting_content)
+        else:
+            self.logger.info("Creating content with external ID %s and source %s", external_id, source)
+
+        content = self.db.upsert_content(text, external_id, source)
+        for language in self.default_translation_languages:
             self.__save_content_translations(content, language)
+
+
+        return content
 
 
     def get_content(self, content_external_id, content_source):
@@ -44,13 +58,17 @@ class TranslationHandler:
         if not content:
             raise ContentNotFoundException()
 
-        sentence = self.db.get_sentence(content_external_id, language, sentence_number)
+        sentence = self.db.get_sentence(content.db_id, language, sentence_number)
         if sentence:
             return sentence
         else:
+            sentences = list(content.get_parsed_text().sents)
+            if sentence_number >= len(sentences):
+                raise SentenceNotFoundException()
+            
             self.logger.info("No pretranslated sentence found for content ID %d, language \"%s\", and sentence number %d."
                              " Translating and returning.", content_external_id, language, sentence_number)
-            sentence_text = list(content.get_parsed_text().sents)[sentence_number].text
+            sentence_text = sentences[sentence_number].text
             sentence_translation = self.web_client.translate(sentence_text, language)
             return self.db.create_sentence(sentence_number, sentence_translation, language, content.db_id)
 

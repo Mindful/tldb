@@ -35,9 +35,9 @@ class TranslationDatabase:
         c.execute("PRAGMA foreign_keys = ON;")
         c.execute('CREATE TABLE IF NOT EXISTS ' + table_name + ' (' + schema + ');')
 
-    def create_content(self, content_text, external_id, data_source):
+    def upsert_content(self, content_text, external_id, data_source):
         c = self.__get_cursor()
-        c.execute("INSERT INTO " + self.content_table_name + " (base_text, external_id, data_source) VALUES (?,?,?)", (content_text,external_id,data_source))
+        c.execute("INSERT OR REPLACE INTO " + self.content_table_name + " (base_text, external_id, data_source) VALUES (?,?,?)", (content_text,external_id,data_source))
         self.db.commit()
         return content.Content(c.lastrowid, content_text, external_id, data_source)
 
@@ -49,6 +49,13 @@ class TranslationDatabase:
 
     def create_sentence(self, sentence_number, translated_text, language, content_id):
         return self.create_sentences([(sentence_number, translated_text, language, content_id)])[0]
+
+    def delete_sentences_for_content(self, content):
+        content_id = content.db_id
+        c = self.__get_cursor()
+        c.execute("DELETE FROM " + self.sentence_table_name + " WHERE content_id=?", (content_id,))
+        self.db.commit()
+
 
     def get_content(self, source, external_id):
         c = self.__get_cursor()
