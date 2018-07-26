@@ -10,6 +10,11 @@ TEXT = 'text'
 SOURCE = 'source'
 EXTERNAL_ID = 'external_id'
 
+class HealthCheckRouting:
+    def on_get(self, req, resp):
+        resp.status = falcon.HTTP_200
+        resp.body = "Healthy as an ox!"
+
 
 class GetContentRouting:
     def on_get(self, req, resp, source, content_id):
@@ -87,3 +92,4 @@ handler = translation_handler.TranslationHandler()
 app.add_route('/content', NewContentRouting())
 app.add_route('/content/{source}/{content_id}/', GetContentRouting())
 app.add_route('/content/{source}/{content_id}/{language}/{sentence_number}', GetSentenceRouting())
+app.add_route('/health/', HealthCheckRouting())
