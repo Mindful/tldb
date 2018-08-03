@@ -3,7 +3,10 @@ from google.cloud import translate
 import os
 import logging
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './nulab-demo-8698ee1db6cc.json'
+GOOGLE_APP_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
+
+if GOOGLE_APP_CREDENTIALS not in os.environ:
+	os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './nulab-demo-8698ee1db6cc.json'
 
 
 class TranslationClient:

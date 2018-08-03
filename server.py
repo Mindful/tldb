@@ -18,7 +18,6 @@ class HealthCheckRouting:
 
 class GetContentRouting:
     def on_get(self, req, resp, source, content_id):
-        content_id = int(content_id)
         source = source.lower()
         try:
             content = handler.get_content(content_id, source)
@@ -32,7 +31,7 @@ class GetContentRouting:
             resp.status = falcon.HTTP_200
             resp.media = output
         except translation_handler.ContentNotFoundException as ex:
-            logger.warning("Could not find content with source %s and ID %d", source, content_id)
+            logger.warning("Could not find content with source %s and ID %s", source, content_id)
             raise falcon.HTTPNotFound(description="Could not find content with the specified source and ID")
         except Exception as ex:
             logger.exception(ex)
@@ -41,7 +40,6 @@ class GetContentRouting:
 
 class GetSentenceRouting:
     def on_get(self, req, resp, source, content_id, language, sentence_number):
-        content_id = int(content_id)
         sentence_number = int(sentence_number)
         source = source.lower()
         try:
@@ -50,10 +48,10 @@ class GetSentenceRouting:
             resp.media = vars(sentence)
 
         except translation_handler.ContentNotFoundException as ex:
-            logger.warning("Could not find content with source %s and ID %d", source, content_id)
+            logger.warning("Could not find content with source %s and ID %s", source, content_id)
             raise falcon.HTTPNotFound(description="Could not find content with the specified source and ID")
         except translation_handler.SentenceNotFoundException as ex:
-            logger.warning("Could not find sentence with content source %s, content id %d, and sentence number %d", source, content_id, sentence_number)
+            logger.warning("Could not find sentence with content source %s, content id %s, and sentence number %d", source, content_id, sentence_number)
             raise falcon.HTTPNotFound(description="Could not find sentence number "+str(sentence_number)+" for specified content")
         except Exception as ex:
             logger.exception(ex)
@@ -68,7 +66,7 @@ class NewContentRouting:
                 raise falcon.HTTPBadRequest(description="Missing required attribute: " + required_attribute)
 
         try:
-            external_id = int(content[EXTERNAL_ID])
+            external_id = content[EXTERNAL_ID]
             external_source = content[SOURCE].lower()
             handler.register_content(content[TEXT], external_id, external_source)
             resp.status = falcon.HTTP_201

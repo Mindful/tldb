@@ -66,7 +66,7 @@ class TranslationHandler:
             if sentence_number >= len(sentences):
                 raise SentenceNotFoundException()
             
-            self.logger.info("No pretranslated sentence found for content ID %d, language \"%s\", and sentence number %d."
+            self.logger.info("No pretranslated sentence found for content ID %s, language \"%s\", and sentence number %d."
                              " Translating and returning.", content_external_id, language, sentence_number)
             sentence_text = sentences[sentence_number].text
             sentence_translation = self.web_client.translate(sentence_text, language)

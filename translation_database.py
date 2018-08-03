@@ -14,7 +14,7 @@ class TranslationDatabase:
 
     database_name = 'translations.db'
     content_table_name = 'contents'
-    content_table_schema = 'id INTEGER PRIMARY KEY AUTOINCREMENT, base_text TEXT UNIQUE, external_id INTEGER, data_source TEXT, UNIQUE (external_id, data_source)'
+    content_table_schema = 'id INTEGER PRIMARY KEY AUTOINCREMENT, base_text TEXT UNIQUE, external_id TEXT, data_source TEXT, UNIQUE (external_id, data_source)'
     sentence_table_name = 'sentences'
     sentence_table_schema = 'sentence_number INTEGER, translated_text TEXT, language TEXT, content_id INTEGER, FOREIGN KEY(content_id) REFERENCES contents(id), PRIMARY KEY(content_id, language, sentence_number)'
 
