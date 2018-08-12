@@ -2,6 +2,8 @@ import falcon
 import translation_handler
 import sqlite3
 import logging
+import config_reader
+from falcon_auth import FalconAuthMiddleware, BasicAuthBackend
 
 # gunicorn server:app
 
@@ -16,7 +18,7 @@ class HealthCheckRouting:
         resp.body = "Healthy as an ox!"
 
 
-class GetContentRouting:
+class ContentRouting:
     def on_get(self, req, resp, source, content_id):
         source = source.lower()
         try:
@@ -32,6 +34,17 @@ class GetContentRouting:
             resp.media = output
         except translation_handler.ContentNotFoundException as ex:
             logger.warning("Could not find content with source %s and ID %s", source, content_id)
+            raise falcon.HTTPNotFound(description="Could not find content with the specified source and ID")
+        except Exception as ex:
+            logger.exception(ex)
+            raise falcon.HTTPInternalServerError()
+
+    def on_delete(self, req, resp, source, content_id):
+        source = source.lower()
+        try: 
+            handler.delete_content(content_id, source)
+            resp.status = falcon.HTTP_200
+        except translation_handler.ContentNotFoundException as ex:
             raise falcon.HTTPNotFound(description="Could not find content with the specified source and ID")
         except Exception as ex:
             logger.exception(ex)
@@ -78,7 +91,21 @@ class NewContentRouting:
             raise falcon.HTTPInternalServerError()
 
 
-app = falcon.API()
+def auth_tuple_to_middleware(auth_tuple):
+    user_loader = lambda username, password: username if (username, password) == auth_tuple else None
+    auth_backend = BasicAuthBackend(user_loader)
+    return FalconAuthMiddleware(auth_backend)
+
+
+config = config_reader.ConfigReader()
+middleware = []
+
+if config.auth:
+    middleware.append(auth_tuple_to_middleware(config.auth))
+    
+
+
+app = falcon.API(middleware=middleware)
 # TODO: configure logger instance, add timestamps
 logging.basicConfig(
     format='[%(asctime)s] [%(levelname)s] %(message)s',
@@ -88,6 +115,6 @@ logger = logging.getLogger()
 handler = translation_handler.TranslationHandler()
 
 app.add_route('/content', NewContentRouting())
-app.add_route('/content/{source}/{content_id}/', GetContentRouting())
+app.add_route('/content/{source}/{content_id}/', ContentRouting())
 app.add_route('/content/{source}/{content_id}/{language}/{sentence_number}', GetSentenceRouting())
-app.add_route('/health/', HealthCheckRouting())
+app.add_route('/health', HealthCheckRouting())

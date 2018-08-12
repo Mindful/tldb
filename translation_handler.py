@@ -35,6 +35,15 @@ class TranslationHandler:
 
         return content
 
+    def delete_content(self, external_id, source):
+        content = self.db.get_content(source, external_id)
+        if content:
+            self.db.delete_sentences_for_content(content)
+            self.db.delete_content(content)
+            return content
+        else:
+            raise ContentNotFoundException()
+
 
     def get_content(self, content_external_id, content_source):
         content = self.db.get_content(content_source, content_external_id)

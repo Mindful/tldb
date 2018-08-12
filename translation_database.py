@@ -76,6 +76,13 @@ class TranslationDatabase:
             return None
 
 
+    def delete_content(self, content):
+        content_id = content.db_id
+        c = self.__get_cursor()
+        c.execute("DELETE FROM " + self.content_table_name + " WHERE id=?", (content_id,))
+        self.db.commit()
+
+
 
 
 

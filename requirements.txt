@@ -1,4 +1,5 @@
 spacy ~= 2.0.5
 falcon ~=  1.4.1
+falcon-auth ~= 1.1.0
 google-cloud ~= 0.32.0
 gunicorn ~= 19.9.0
